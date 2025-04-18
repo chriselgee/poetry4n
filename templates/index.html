@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poetry for Neanderthals</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Poetry for Neanderthals</h1>
+        <div id="lobby">
+            <button id="createGameBtn">Create Game</button>
+            <input id="joinGameId" placeholder="Game ID">
+            <input id="playerName" placeholder="Your Name">
+            <select id="teamSelect">
+                <option value="A">Team A</option>
+                <option value="B">Team B</option>
+            </select>
+            <button id="joinGameBtn">Join Game</button>
+        </div>
+        <div id="game" style="display:none;">
+            <div id="gameInfo"></div>
+            <div id="turn" style="display:none;">
+                <div id="phrase"></div>
+                <div id="timer"></div>
+                <button id="assign1">Assign 1 Point</button>
+                <button id="assign3">Assign 3 Points</button>
+                <button id="assignOpp">Give 1 Point to Opponent</button>
+                <button id="endTurn">End Turn</button>
+            </div>
+            <div id="waiting" style="display:none;">Waiting for your turn...</div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+from flask import Flask, request, jsonify, render_template, send_from_directory
+import db_funcs
+import uuid
+from functools import wraps
+import os
+
+app = Flask(__name__)
+
+# In-memory session store (for demo; use persistent store in production)
+sessions = {}
+
+def require_session(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        session_token = request.headers.get('X-Session-Token')
+        if not session_token or session_token not in sessions:
+            return jsonify({'error': 'Invalid or missing session token'}), 401
+        request.player_id = sessions[session_token]['player_id']
+        request.game_id = sessions[session_token]['game_id']
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(os.path.join(app.root_path, 'static'), filename)
+
+@app.route('/create_game', methods=['POST'])
+def create_game():
+    game_id = db_funcs.create_game()
+    return jsonify({'game_id': game_id})
+
+@app.route('/add_player', methods=['POST'])
+def add_player():
+    data = request.json
+    game_id = data.get('game_id')
+    player_name = data.get('player_name')
+    team = data.get('team')
+    if not all([game_id, player_name, team]):
+        return jsonify({'error': 'Missing required fields'}), 400
+    player_id = db_funcs.add_player(game_id, player_name, team)
+    # Create session token
+    session_token = str(uuid.uuid4())
+    sessions[session_token] = {'player_id': player_id, 'game_id': game_id}
+    return jsonify({'player_id': player_id, 'session_token': session_token})
+
+@app.route('/get_game/<game_id>', methods=['GET'])
+def get_game(game_id):
+    game = db_funcs.get_game(game_id)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+    return jsonify(game)
+
+@app.route('/get_phrase', methods=['GET'])
+def get_phrase():
+    phrase = db_funcs.get_random_phrase()
+    if not phrase:
+        return jsonify({'error': 'No phrases available'}), 404
+    return jsonify({'phrase': phrase})
+
+@app.route('/assign_points', methods=['POST'])
+@require_session
+def assign_points():
+    data = request.json
+    points = data.get('points')  # int: 1, 3, or -1
+    team = data.get('team')      # 'A' or 'B'
+    if points not in [1, 3, -1] or team not in ['A', 'B']:
+        return jsonify({'error': 'Invalid points or team'}), 400
+    game = db_funcs.get_game(request.game_id)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+    # Update score
+    scores = game.get('scores', {'A': 0, 'B': 0})
+    scores[team] = scores.get(team, 0) + points
+    db_funcs.update_game_state(request.game_id, {'scores': scores})
+    # Get new phrase
+    phrase_obj = db_funcs.get_random_phrase()
+    if not phrase_obj:
+        return jsonify({'error': 'No phrases available'}), 404
+    db_funcs.update_game_state(request.game_id, {'currentPhrase': phrase_obj['text'], 'currentWord': phrase_obj['word']})
+    return jsonify({'scores': scores, 'phrase': phrase_obj['text'], 'word': phrase_obj['word']})
+
+@app.route('/start_turn', methods=['POST'])
+@require_session
+def start_turn():
+    import datetime
+    game = db_funcs.get_game(request.game_id)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+    # Set current turn and timer
+    phrase_obj = db_funcs.get_random_phrase()
+    if not phrase_obj:
+        return jsonify({'error': 'No phrases available'}), 404
+    turn_end = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
+    db_funcs.update_game_state(request.game_id, {
+        'currentTurn': request.player_id,
+        'currentPhrase': phrase_obj['text'],
+        'currentWord': phrase_obj['word'],
+        'turnEndTime': turn_end
+    })
+    return jsonify({'currentTurn': request.player_id, 'phrase': phrase_obj['text'], 'word': phrase_obj['word'], 'turnEndTime': turn_end.isoformat() + 'Z'})
+
+@app.route('/end_turn', methods=['POST'])
+@require_session
+def end_turn():
+    game = db_funcs.get_game(request.game_id)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+    # Rotate to next player (simple round-robin)
+    current_team = game.get('currentTeam', 'A')
+    next_team = 'B' if current_team == 'A' else 'A'
+    team_players = game.get(f'team{next_team}', [])
+    if not team_players:
+        return jsonify({'error': 'No players in next team'}), 400
+    # Find next player (for demo, just pick first)
+    next_player = team_players[0]
+    db_funcs.update_game_state(request.game_id, {
+        'currentTeam': next_team,
+        'currentTurn': next_player
+    })
+    return jsonify({'nextTeam': next_team, 'nextPlayer': next_player})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
