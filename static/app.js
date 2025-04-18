@@ -23,12 +23,45 @@ async function createGame() {
     alert('Game created! Share this Game ID: ' + data.game_id);
 }
 
+async function fetchGames() {
+    const res = await fetch('/list_games');
+    const data = await res.json();
+    const select = document.getElementById('gameSelect');
+    select.innerHTML = '<option value="">-- Select a Game --</option>';
+    (data.games || []).forEach(g => {
+        select.innerHTML += `<option value="${g.game_id}">${g.label}</option>`;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', fetchGames);
+
+document.getElementById('createGameBtn').onclick = async function() {
+    const res = await fetch('/create_game', {method: 'POST'});
+    const data = await res.json();
+    await fetchGames();
+    document.getElementById('gameSelect').value = data.game_id;
+    alert('Game created! Share this Game ID: ' + data.game_id);
+};
+
+document.getElementById('gameSelect').onchange = async function() {
+    const gameId = this.value;
+    if (!gameId) {
+        document.getElementById('startGameBtn').style.display = 'none';
+        return;
+    }
+    // Fetch game info to check player count
+    const res = await fetch(`/get_game/${gameId}`);
+    const game = await res.json();
+    const nPlayers = (game.teamA?.length || 0) + (game.teamB?.length || 0);
+    document.getElementById('startGameBtn').style.display = (nPlayers >= 4 && game.state === 'waiting') ? '' : 'none';
+};
+
 async function joinGame() {
-    gameId = document.getElementById('joinGameId').value.trim();
+    const gameId = document.getElementById('gameSelect').value;
     const playerName = document.getElementById('playerName').value.trim();
     const team = document.getElementById('teamSelect').value;
     if (!gameId || !playerName) {
-        alert('Enter Game ID and Name');
+        alert('Select a game and enter your name');
         return;
     }
     const res = await fetch('/add_player', {
@@ -41,6 +74,7 @@ async function joinGame() {
         alert(data.error);
         return;
     }
+    gameId = gameId;
     playerId = data.player_id;
     sessionToken = data.session_token;
     playerTeam = team;
@@ -182,4 +216,22 @@ document.getElementById('readyBtn').onclick = async function() {
     show('phraseSection');
     document.getElementById('phrase').innerHTML = `<div>${data.phrase}</div><div style='font-size:0.9em;color:#888;'>Word: <b>${data.word}</b></div>`;
     startTimer(data.turnEndTime);
+};
+
+document.getElementById('startGameBtn').onclick = async function() {
+    const gameId = document.getElementById('gameSelect').value;
+    if (!gameId) return;
+    const res = await fetch('/start_game', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({game_id: gameId})
+    });
+    const data = await res.json();
+    if (data.error) {
+        alert(data.error);
+        return;
+    }
+    alert('Game started! Players can now join and play.');
+    await fetchGames();
+    document.getElementById('startGameBtn').style.display = 'none';
 };

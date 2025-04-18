@@ -54,6 +54,20 @@ def get_random_phrase():
     data = phrase_doc.to_dict()
     return {'text': data['text'], 'word': data['word']}
 
+def list_waiting_games():
+    """Return a list of games in 'waiting' state with their IDs and player counts."""
+    games = db.collection('games').where('state', '==', 'waiting').stream()
+    result = []
+    for g in games:
+        data = g.to_dict()
+        result.append({
+            'game_id': g.id,
+            'createdAt': data.get('createdAt'),
+            'teamA': data.get('teamA', []),
+            'teamB': data.get('teamB', [])
+        })
+    return result
+
 # Example usage:
 # game_id = create_game()
 # player_id = add_player(game_id, "Alice", "A")

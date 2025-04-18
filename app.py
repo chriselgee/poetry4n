@@ -45,30 +45,47 @@ def add_player():
     # Create session token
     session_token = str(uuid.uuid4())
     sessions[session_token] = {'player_id': player_id, 'game_id': game_id}
+    # Remove auto-start logic here
+    return jsonify({'player_id': player_id, 'session_token': session_token})
 
-    # Check if 4 or more players have joined, then start the game
+@app.route('/list_games', methods=['GET'])
+def list_games():
+    games = db_funcs.list_waiting_games()
+    # Add a label for each game (e.g. "Game X (N players)")
+    for g in games:
+        n_players = len(g['teamA']) + len(g['teamB'])
+        g['label'] = f"Game {g['game_id'][:8]} ({n_players} players)"
+    return jsonify({'games': games})
+
+@app.route('/start_game', methods=['POST'])
+def start_game():
+    import random, datetime
+    data = request.json
+    game_id = data.get('game_id')
     game = db_funcs.get_game(game_id)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
     teamA = game.get('teamA', [])
     teamB = game.get('teamB', [])
     total_players = len(teamA) + len(teamB)
-    if game.get('state') == 'waiting' and total_players >= 4:
-        # Start game: set state, pick first team/player, set currentTurn/currentTeam
-        import random, datetime
-        first_team = random.choice(['A', 'B'])
-        first_team_players = teamA if first_team == 'A' else teamB
-        if first_team_players:
-            first_player = first_team_players[0]
-            phrase_obj = db_funcs.get_random_phrase()
-            turn_end = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
-            db_funcs.update_game_state(game_id, {
-                'state': 'active',
-                'currentTeam': first_team,
-                'currentTurn': first_player,
-                'currentPhrase': phrase_obj['text'],
-                'currentWord': phrase_obj['word'],
-                'turnEndTime': turn_end
-            })
-    return jsonify({'player_id': player_id, 'session_token': session_token})
+    if game.get('state') != 'waiting' or total_players < 4:
+        return jsonify({'error': 'Game cannot be started (need at least 4 players and waiting state)'}), 400
+    first_team = random.choice(['A', 'B'])
+    first_team_players = teamA if first_team == 'A' else teamB
+    if not first_team_players:
+        return jsonify({'error': 'No players in first team'}), 400
+    first_player = first_team_players[0]
+    phrase_obj = db_funcs.get_random_phrase()
+    turn_end = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
+    db_funcs.update_game_state(game_id, {
+        'state': 'active',
+        'currentTeam': first_team,
+        'currentTurn': first_player,
+        'currentPhrase': phrase_obj['text'],
+        'currentWord': phrase_obj['word'],
+        'turnEndTime': turn_end
+    })
+    return jsonify({'ok': True})
 
 @app.route('/get_game/<game_id>', methods=['GET'])
 def get_game(game_id):

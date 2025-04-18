@@ -11,13 +11,14 @@
         <h1>Poetry for Neanderthals</h1>
         <div id="lobby">
             <button id="createGameBtn">Create Game</button>
-            <input id="joinGameId" placeholder="Game ID">
+            <select id="gameSelect" style="width:100%;margin:8px 0;"></select>
             <input id="playerName" placeholder="Your Name">
             <select id="teamSelect">
                 <option value="A">Team A</option>
                 <option value="B">Team B</option>
             </select>
             <button id="joinGameBtn">Join Game</button>
+            <button id="startGameBtn" style="display:none;">Start Game</button>
         </div>
         <div id="game" style="display:none;">
             <div id="gameInfo"></div>
