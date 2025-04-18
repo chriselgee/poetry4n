@@ -45,6 +45,29 @@ def add_player():
     # Create session token
     session_token = str(uuid.uuid4())
     sessions[session_token] = {'player_id': player_id, 'game_id': game_id}
+
+    # Check if 4 or more players have joined, then start the game
+    game = db_funcs.get_game(game_id)
+    teamA = game.get('teamA', [])
+    teamB = game.get('teamB', [])
+    total_players = len(teamA) + len(teamB)
+    if game.get('state') == 'waiting' and total_players >= 4:
+        # Start game: set state, pick first team/player, set currentTurn/currentTeam
+        import random, datetime
+        first_team = random.choice(['A', 'B'])
+        first_team_players = teamA if first_team == 'A' else teamB
+        if first_team_players:
+            first_player = first_team_players[0]
+            phrase_obj = db_funcs.get_random_phrase()
+            turn_end = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
+            db_funcs.update_game_state(game_id, {
+                'state': 'active',
+                'currentTeam': first_team,
+                'currentTurn': first_player,
+                'currentPhrase': phrase_obj['text'],
+                'currentWord': phrase_obj['word'],
+                'turnEndTime': turn_end
+            })
     return jsonify({'player_id': player_id, 'session_token': session_token})
 
 @app.route('/get_game/<game_id>', methods=['GET'])
@@ -109,19 +132,51 @@ def end_turn():
     game = db_funcs.get_game(request.game_id)
     if not game:
         return jsonify({'error': 'Game not found'}), 404
-    # Rotate to next player (simple round-robin)
+    # Round-robin: find next player in the other team
     current_team = game.get('currentTeam', 'A')
     next_team = 'B' if current_team == 'A' else 'A'
     team_players = game.get(f'team{next_team}', [])
     if not team_players:
         return jsonify({'error': 'No players in next team'}), 400
-    # Find next player (for demo, just pick first)
-    next_player = team_players[0]
+    current_turn = game.get('currentTurn')
+    # Find index of currentTurn in team_players, then pick next (wrap around)
+    try:
+        idx = team_players.index(current_turn)
+        next_idx = (idx + 1) % len(team_players)
+    except ValueError:
+        next_idx = 0
+    next_player = team_players[next_idx]
+    # Set state to waiting for ready
     db_funcs.update_game_state(request.game_id, {
         'currentTeam': next_team,
-        'currentTurn': next_player
+        'currentTurn': next_player,
+        'turnReady': False,
+        'currentPhrase': None,
+        'currentWord': None,
+        'turnEndTime': None
     })
     return jsonify({'nextTeam': next_team, 'nextPlayer': next_player})
+
+@app.route('/ready_turn', methods=['POST'])
+@require_session
+def ready_turn():
+    import datetime
+    game = db_funcs.get_game(request.game_id)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+    if game.get('currentTurn') != request.player_id:
+        return jsonify({'error': 'Not your turn'}), 403
+    phrase_obj = db_funcs.get_random_phrase()
+    if not phrase_obj:
+        return jsonify({'error': 'No phrases available'}), 404
+    turn_end = datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
+    db_funcs.update_game_state(request.game_id, {
+        'turnReady': True,
+        'currentPhrase': phrase_obj['text'],
+        'currentWord': phrase_obj['word'],
+        'turnEndTime': turn_end
+    })
+    return jsonify({'phrase': phrase_obj['text'], 'word': phrase_obj['word'], 'turnEndTime': turn_end.isoformat() + 'Z'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
