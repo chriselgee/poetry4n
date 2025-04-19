@@ -195,5 +195,19 @@ def ready_turn():
     })
     return jsonify({'phrase': phrase_obj['text'], 'word': phrase_obj['word'], 'turnEndTime': turn_end.isoformat() + 'Z'})
 
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
+@app.route('/admin/reset_phrases', methods=['POST'])
+def admin_reset_phrases():
+    db_funcs.reset_all_phrases()
+    return jsonify({'ok': True})
+
+@app.route('/admin/delete_games', methods=['POST'])
+def admin_delete_games():
+    db_funcs.delete_all_games()
+    return jsonify({'ok': True})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

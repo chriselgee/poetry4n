@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel</h1>
+        <button id="resetPhrasesBtn">Reset All Phrases</button>
+        <button id="deleteGamesBtn">Delete All Games</button>
+        <div id="adminStatus" style="margin-top:1em;color:green;"></div>
+    </div>
+    <script>
+        document.getElementById('resetPhrasesBtn').onclick = async function() {
+            if (!confirm('Reset all phrases to unused?')) return;
+            const res = await fetch('/admin/reset_phrases', {method: 'POST'});
+            if (res.ok) {
+                document.getElementById('adminStatus').innerText = 'All phrases reset!';
+            }
+        };
+        document.getElementById('deleteGamesBtn').onclick = async function() {
+            if (!confirm('Delete all games? This cannot be undone.')) return;
+            const res = await fetch('/admin/delete_games', {method: 'POST'});
+            if (res.ok) {
+                document.getElementById('adminStatus').innerText = 'All games deleted!';
+            }
+        };
+    </script>
+</body>
+</html>

@@ -68,6 +68,23 @@ def list_waiting_games():
         })
     return result
 
+def reset_all_phrases():
+    phrases = db.collection('phrases').stream()
+    for phrase in phrases:
+        phrase.reference.update({'used': False})
+
+def delete_all_games():
+    games = db.collection('games').stream()
+    for game in games:
+        # Delete all players subcollection docs
+        try:
+            players = game.reference.collection('players').stream()
+            for player in players:
+                player.reference.delete()
+        except Exception:
+            pass
+        game.reference.delete()
+
 # Example usage:
 # game_id = create_game()
 # player_id = add_player(game_id, "Alice", "A")
