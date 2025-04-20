@@ -24,8 +24,14 @@ def create_game():
     return game_id
 
 def add_player(game_id, player_name, team):
+    # Prevent duplicate players (same name and team in the same game)
+    players_ref = db.collection('games').document(game_id).collection('players')
+    existing_players = list(players_ref.where('name', '==', player_name).where('team', '==', team).stream())
+    if existing_players:
+        # Return the first matching player's ID
+        return existing_players[0].id
     player_id = str(uuid.uuid4())
-    player_ref = db.collection('games').document(game_id).collection('players').document(player_id)
+    player_ref = players_ref.document(player_id)
     player_ref.set({
         'name': player_name,
         'team': team,

@@ -27,10 +27,15 @@ async function fetchGames() {
     const res = await fetch('/list_games');
     const data = await res.json();
     const select = document.getElementById('gameSelect');
+    const prevValue = select.value; // Save current selection
     select.innerHTML = '<option value="">-- Select a Game --</option>';
     (data.games || []).forEach(g => {
         select.innerHTML += `<option value="${g.game_id}">${g.label}</option>`;
     });
+    // Restore selection if still present
+    if (prevValue && Array.from(select.options).some(opt => opt.value === prevValue)) {
+        select.value = prevValue;
+    }
 }
 
 // Poll for new games every 3 seconds while in the lobby
@@ -55,6 +60,7 @@ document.getElementById('createGameBtn').onclick = async function() {
     await fetchGames();
     document.getElementById('gameSelect').value = data.game_id;
     alert('Game created! Share this Game ID: ' + data.game_id);
+    document.getElementById('gameSelect').dispatchEvent(new Event('change'));
 };
 
 document.getElementById('gameSelect').onchange = async function() {
@@ -75,30 +81,38 @@ document.getElementById('gameSelect').onchange = async function() {
 };
 
 async function joinGame() {
-    const gameId = document.getElementById('gameSelect').value;
-    const playerName = document.getElementById('playerName').value.trim();
+    const joinBtn = document.getElementById('joinGameBtn');
+    joinBtn.disabled = true;
+    const gameIdSel = document.getElementById('gameSelect').value;
+    const playerNameInput = document.getElementById('playerName');
+    const playerName = playerNameInput.value.trim();
     const team = document.getElementById('teamSelect').value;
-    if (!gameId || !playerName) {
+    if (!gameIdSel || !playerName) {
         alert('Select a game and enter your name');
+        joinBtn.disabled = false;
         return;
     }
     const res = await fetch('/add_player', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({game_id: gameId, player_name: playerName, team})
+        body: JSON.stringify({game_id: gameIdSel, player_name: playerName, team})
     });
     const data = await res.json();
     if (data.error) {
         alert(data.error);
+        joinBtn.disabled = false;
         return;
     }
-    gameId = gameId;
+    gameId = gameIdSel;
     playerId = data.player_id;
     sessionToken = data.session_token;
     playerTeam = team;
+    playerNameInput.value = ''; // Clear name field
     hide('lobby');
     show('game');
+    document.getElementById('gameSelect').dispatchEvent(new Event('change'));
     pollGameState();
+    joinBtn.disabled = false;
 }
 
 async function pollGameState() {
