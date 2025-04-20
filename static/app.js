@@ -33,7 +33,21 @@ async function fetchGames() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', fetchGames);
+// Poll for new games every 3 seconds while in the lobby
+function startLobbyPolling() {
+    let lobbyInterval = setInterval(() => {
+        if (document.getElementById('lobby').style.display === 'none') {
+            clearInterval(lobbyInterval);
+        } else {
+            fetchGames();
+        }
+    }, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchGames();
+    startLobbyPolling();
+});
 
 document.getElementById('createGameBtn').onclick = async function() {
     const res = await fetch('/create_game', {method: 'POST'});
@@ -44,16 +58,20 @@ document.getElementById('createGameBtn').onclick = async function() {
 };
 
 document.getElementById('gameSelect').onchange = async function() {
-    const gameId = this.value;
-    if (!gameId) {
+    const gameIdSel = this.value;
+    if (!gameIdSel) {
         document.getElementById('startGameBtn').style.display = 'none';
         return;
     }
-    // Fetch game info to check player count
-    const res = await fetch(`/get_game/${gameId}`);
+    const res = await fetch(`/get_game/${gameIdSel}`);
     const game = await res.json();
     const nPlayers = (game.teamA?.length || 0) + (game.teamB?.length || 0);
-    document.getElementById('startGameBtn').style.display = (nPlayers >= 4 && game.state === 'waiting') ? '' : 'none';
+    // Only show if enough players, waiting state, and player is creator
+    let isCreator = false;
+    if (playerId && (game.teamA?.[0] === playerId || game.teamB?.[0] === playerId)) {
+        isCreator = true;
+    }
+    document.getElementById('startGameBtn').style.display = (nPlayers >= 4 && game.state === 'waiting' && isCreator) ? '' : 'none';
 };
 
 async function joinGame() {
