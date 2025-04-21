@@ -91,6 +91,14 @@ def delete_all_games():
             pass
         game.reference.delete()
 
+def get_player_name(game_id, player_id):
+    """Return the player's name given game_id and player_id, or None if not found."""
+    player_ref = db.collection('games').document(game_id).collection('players').document(player_id)
+    player_doc = player_ref.get()
+    if player_doc.exists:
+        return player_doc.to_dict().get('name')
+    return None
+
 # Example usage:
 # game_id = create_game()
 # player_id = add_player(game_id, "Alice", "A")

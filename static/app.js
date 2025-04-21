@@ -236,7 +236,8 @@ async function endTurn() {
         showToast(data.error);
         return;
     }
-    showToast('Turn ended. Next: ' + data.nextPlayer);
+    let nextName = data.nextPlayerName || data.nextPlayer;
+    showToast('Turn ended. Next: ' + nextName);
 }
 
 document.getElementById('createGameBtn').onclick = createGame;

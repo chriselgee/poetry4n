@@ -163,6 +163,8 @@ def end_turn():
     except ValueError:
         next_idx = 0
     next_player = team_players[next_idx]
+    # Get next player's name
+    next_player_name = db_funcs.get_player_name(request.game_id, next_player)
     # Set state to waiting for ready
     db_funcs.update_game_state(request.game_id, {
         'currentTeam': next_team,
@@ -172,7 +174,7 @@ def end_turn():
         'currentWord': None,
         'turnEndTime': None
     })
-    return jsonify({'nextTeam': next_team, 'nextPlayer': next_player})
+    return jsonify({'nextTeam': next_team, 'nextPlayer': next_player, 'nextPlayerName': next_player_name})
 
 @app.route('/ready_turn', methods=['POST'])
 @require_session
