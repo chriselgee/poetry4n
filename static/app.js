@@ -124,6 +124,11 @@ async function pollGameState() {
     const isActive = game.currentTurn === playerId;
     const isOpposing = playerTeam && playerTeam !== currentTeam;
     const turnReady = !!game.turnReady;
+
+    // Hide Start Game button if game is not waiting
+    const nPlayers = (game.teamA?.length || 0) + (game.teamB?.length || 0);
+    document.getElementById('startGameBtn').style.display = (nPlayers >= 4 && game.state === 'waiting') ? '' : 'none';
+
     if (isActive) {
         show('turn');
         hide('waiting');
