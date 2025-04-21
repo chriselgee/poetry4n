@@ -93,6 +93,32 @@ button:hover {
   transition: opacity 0.3s;
   pointer-events: none;
 }
+.teamA-indicator {
+    background: #3a7bd5;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 8px 0;
+    text-align: center;
+    margin-bottom: 10px;
+    border: 2px solid #225599;
+    letter-spacing: 1px;
+    font-size: 1.1em;
+    box-shadow: 1px 1px 0 #225599;
+}
+.teamB-indicator {
+    background: #d53a3a;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 8px 0;
+    text-align: center;
+    margin-bottom: 10px;
+    border: 2px solid #992222;
+    letter-spacing: 1px;
+    font-size: 1.1em;
+    box-shadow: 1px 1px 0 #992222;
+}
 @media (max-width: 500px) {
     .container {
         max-width: 98vw;

@@ -27,6 +27,17 @@ function showToast(msg, duration=2500) {
     }, duration);
 }
 
+function updateTeamIndicator() {
+    const indicator = document.getElementById('playerTeamIndicator');
+    if (!playerTeam) {
+        indicator.style.display = 'none';
+        return;
+    }
+    indicator.style.display = '';
+    indicator.innerText = `You are Team ${playerTeam}`;
+    indicator.className = playerTeam === 'A' ? 'teamA-indicator' : 'teamB-indicator';
+}
+
 async function createGame() {
     const res = await fetch('/create_game', {method: 'POST'});
     const data = await res.json();
@@ -117,6 +128,7 @@ async function joinGame() {
     playerNameInput.value = ''; // Clear name field
     hide('lobby');
     show('game');
+    updateTeamIndicator();
     document.getElementById('gameSelect').dispatchEvent(new Event('change'));
     pollGameState();
     joinBtn.disabled = false;
@@ -139,6 +151,8 @@ async function pollGameState() {
     // Hide Start Game button if game is not waiting
     const nPlayers = (game.teamA?.length || 0) + (game.teamB?.length || 0);
     document.getElementById('startGameBtn').style.display = (nPlayers >= 4 && game.state === 'waiting') ? '' : 'none';
+
+    updateTeamIndicator();
 
     if (isActive) {
         show('turn');
