@@ -72,12 +72,8 @@ document.getElementById('gameSelect').onchange = async function() {
     const res = await fetch(`/get_game/${gameIdSel}`);
     const game = await res.json();
     const nPlayers = (game.teamA?.length || 0) + (game.teamB?.length || 0);
-    // Only show if enough players, waiting state, and player is creator
-    let isCreator = false;
-    if (playerId && (game.teamA?.[0] === playerId || game.teamB?.[0] === playerId)) {
-        isCreator = true;
-    }
-    document.getElementById('startGameBtn').style.display = (nPlayers >= 4 && game.state === 'waiting' && isCreator) ? '' : 'none';
+    // Only show if enough players and waiting state
+    document.getElementById('startGameBtn').style.display = (nPlayers >= 4 && game.state === 'waiting') ? '' : 'none';
 };
 
 async function joinGame() {
