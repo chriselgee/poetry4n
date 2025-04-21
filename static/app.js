@@ -145,7 +145,7 @@ async function pollGameState() {
             document.getElementById('endTurn').style.display = '';
             let phrase = game.currentPhrase || '';
             let word = game.currentWord || '';
-            document.getElementById('phrase').innerHTML = `<div>${phrase}</div><div style='font-size:0.9em;color:#888;'>Word: <b>${word}</b></div>`;
+            document.getElementById('phrase').innerHTML = `<div>${word}</div><div style='font-size:0.9em;color:#888;'><b>${phrase}</b></div>`;
             startTimer(game.turnEndTime);
         }
     } else if (isOpposing && turnReady) {
@@ -160,7 +160,7 @@ async function pollGameState() {
         document.getElementById('endTurn').style.display = 'none';
         let phrase = game.currentPhrase || '';
         let word = game.currentWord || '';
-        document.getElementById('phrase').innerHTML = `<div>${phrase}</div><div style='font-size:0.9em;color:#888;'>Word: <b>${word}</b></div>`;
+        document.getElementById('phrase').innerHTML = `<div>${word}</div><div style='font-size:0.9em;color:#888;'><b>${phrase}</b></div>`;
         startTimer(game.turnEndTime);
     } else {
         hide('turn');
@@ -196,7 +196,7 @@ async function assignPoints(points, team) {
         return;
     }
     // Show both phrase and word
-    document.getElementById('phrase').innerHTML = `<div>${data.phrase}</div><div style='font-size:0.9em;color:#888;'>Word: <b>${data.word}</b></div>`;
+    document.getElementById('phrase').innerHTML = `<div>${data.word}</div><div style='font-size:0.9em;color:#888;'><b>${data.phrase}</b></div>`;
     setGameInfo(`Team A: ${data.scores.A} | Team B: ${data.scores.B}`);
 }
 
@@ -211,7 +211,7 @@ async function startTurn() {
         return;
     }
     // Show both phrase and word
-    document.getElementById('phrase').innerHTML = `<div>${data.phrase}</div><div style='font-size:0.9em;color:#888;'>Word: <b>${data.word}</b></div>`;
+    document.getElementById('phrase').innerHTML = `<div>${data.word}</div><div style='font-size:0.9em;color:#888;'><b>${data.phrase}</b></div>`;
     startTimer(data.turnEndTime);
 }
 
@@ -247,7 +247,7 @@ document.getElementById('readyBtn').onclick = async function() {
     }
     hide('readySection');
     show('phraseSection');
-    document.getElementById('phrase').innerHTML = `<div>${data.phrase}</div><div style='font-size:0.9em;color:#888;'>Word: <b>${data.word}</b></div>`;
+    document.getElementById('phrase').innerHTML = `<div>${data.word}</div><div style='font-size:0.9em;color:#888;'><b>${data.phrase}</b></div>`;
     startTimer(data.turnEndTime);
 };
 
