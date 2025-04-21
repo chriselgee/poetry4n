@@ -77,6 +77,22 @@ button:hover {
     text-align: center;
     margin-top: 1em;
 }
+#toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 6px;
+  font-size: 1.1em;
+  z-index: 9999;
+  opacity: 0.95;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
 @media (max-width: 500px) {
     .container {
         max-width: 98vw;

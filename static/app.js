@@ -16,11 +16,22 @@ function setGameInfo(info) {
     document.getElementById('gameInfo').innerText = info;
 }
 
+function showToast(msg, duration=2500) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.style.display = '';
+    toast.style.opacity = '0.95';
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 350);
+    }, duration);
+}
+
 async function createGame() {
     const res = await fetch('/create_game', {method: 'POST'});
     const data = await res.json();
     document.getElementById('joinGameId').value = data.game_id;
-    alert('Game created! Share this Game ID: ' + data.game_id);
+    showToast('Game created! Share this Game ID: ' + data.game_id);
 }
 
 async function fetchGames() {
@@ -59,7 +70,7 @@ document.getElementById('createGameBtn').onclick = async function() {
     const data = await res.json();
     await fetchGames();
     document.getElementById('gameSelect').value = data.game_id;
-    alert('Game created! Share this Game ID: ' + data.game_id);
+    showToast('Game created! Share this Game ID: ' + data.game_id);
     document.getElementById('gameSelect').dispatchEvent(new Event('change'));
 };
 
@@ -84,7 +95,7 @@ async function joinGame() {
     const playerName = playerNameInput.value.trim();
     const team = document.getElementById('teamSelect').value;
     if (!gameIdSel || !playerName) {
-        alert('Select a game and enter your name');
+        showToast('Select a game and enter your name');
         joinBtn.disabled = false;
         return;
     }
@@ -95,7 +106,7 @@ async function joinGame() {
     });
     const data = await res.json();
     if (data.error) {
-        alert(data.error);
+        showToast(data.error);
         joinBtn.disabled = false;
         return;
     }
@@ -192,7 +203,7 @@ async function assignPoints(points, team) {
     });
     const data = await res.json();
     if (data.error) {
-        alert(data.error);
+        showToast(data.error);
         return;
     }
     // Show both phrase and word
@@ -207,7 +218,7 @@ async function startTurn() {
     });
     const data = await res.json();
     if (data.error) {
-        alert(data.error);
+        showToast(data.error);
         return;
     }
     // Show both phrase and word
@@ -222,10 +233,10 @@ async function endTurn() {
     });
     const data = await res.json();
     if (data.error) {
-        alert(data.error);
+        showToast(data.error);
         return;
     }
-    alert('Turn ended. Next: ' + data.nextPlayer);
+    showToast('Turn ended. Next: ' + data.nextPlayer);
 }
 
 document.getElementById('createGameBtn').onclick = createGame;
@@ -242,7 +253,7 @@ document.getElementById('readyBtn').onclick = async function() {
     });
     const data = await res.json();
     if (data.error) {
-        alert(data.error);
+        showToast(data.error);
         return;
     }
     hide('readySection');
@@ -261,10 +272,10 @@ document.getElementById('startGameBtn').onclick = async function() {
     });
     const data = await res.json();
     if (data.error) {
-        alert(data.error);
+        showToast(data.error);
         return;
     }
-    alert('Game started! Players can now join and play.');
+    showToast('Game started! Players can now join and play.');
     await fetchGames();
     document.getElementById('startGameBtn').style.display = 'none';
 };
