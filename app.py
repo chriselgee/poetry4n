@@ -149,30 +149,28 @@ def end_turn():
     game = db_funcs.get_game(request.game_id)
     if not game:
         return jsonify({'error': 'Game not found'}), 404
-    # Round-robin: find next player in the other team
+    # Alternate team
     current_team = game.get('currentTeam', 'A')
     next_team = 'B' if current_team == 'A' else 'A'
     team_players = game.get(f'team{next_team}', [])
     if not team_players:
         return jsonify({'error': 'No players in next team'}), 400
-    current_turn = game.get('currentTurn')
-    # Find index of currentTurn in team_players, then pick next (wrap around)
-    try:
-        idx = team_players.index(current_turn)
-        next_idx = (idx + 1) % len(team_players)
-    except ValueError:
-        next_idx = 0
+    # Get last index for next team
+    last_index_key = f'lastPlayerIndex{next_team}'
+    last_idx = game.get(last_index_key, -1)
+    next_idx = (last_idx + 1) % len(team_players)
     next_player = team_players[next_idx]
     # Get next player's name
     next_player_name = db_funcs.get_player_name(request.game_id, next_player)
-    # Set state to waiting for ready
+    # Set state to waiting for ready and update last index
     db_funcs.update_game_state(request.game_id, {
         'currentTeam': next_team,
         'currentTurn': next_player,
         'turnReady': False,
         'currentPhrase': None,
         'currentWord': None,
-        'turnEndTime': None
+        'turnEndTime': None,
+        last_index_key: next_idx
     })
     return jsonify({'nextTeam': next_team, 'nextPlayer': next_player, 'nextPlayerName': next_player_name})
 
