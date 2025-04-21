@@ -9,6 +9,7 @@ A web-based implementation of the party game "Poetry for Neanderthals." Players 
 - Real-time turn management and scoring
 - Random phrase/word selection from Firestore
 - Simple, responsive UI
+- Admin panel for phrase/game management
 
 ## Requirements
 
@@ -45,11 +46,19 @@ A web-based implementation of the party game "Poetry for Neanderthals." Players 
 
 ## Usage
 
-1. Open the app in your browser.
-2. Create a new game or join an existing one using the Game ID.
-3. Enter your name and select a team.
-4. Wait for at least 4 players to join to start the game.
-5. Follow on-screen instructions to play.
+1. Open the app in your browser at `http://localhost:8080`.
+2. In the lobby, create a new game or select an existing one from the dropdown.
+3. Enter your name and select a team (A or B).
+4. Click "Join Game" to join the selected game.
+5. Wait for at least 4 players to join (across both teams).
+6. The "Start Game" button will appear for eligible games; click it to begin.
+7. Follow on-screen instructions to play: players take turns, use the "Ready" button, and assign points as appropriate.
+8. The game manages turns, timers, and scoring automatically.
+
+### Admin Panel
+
+- Visit `/admin` for admin controls.
+- Reset all phrases to unused or delete all games from the database.
 
 ## Project Structure
 
@@ -62,6 +71,7 @@ static/
     style.css         # Styles
 templates/
     index.html        # Main HTML template
+    admin.html        # Admin panel
 requirements.txt      # Python dependencies
 service-account.json  # Firestore credentials (not included)
 Dockerfile, Makefile  # (Optional) Containerization/build
