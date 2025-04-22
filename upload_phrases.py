@@ -29,12 +29,41 @@ PHRASES = [
     'Stone Age', 'Sun Flower', 'Surf Board', 'Swimming Pool', 'Table Cloth',
     'Tea Cup', 'Thunder Storm', 'Time Machine', 'Tooth Brush', 'Traffic Jam',
     'Tree House', 'Trophy Case', 'Turtle Shell', 'Vanilla Bean', 'Water Fall',
-    'Wind Mill', 'Window Pane', 'Winter Coat', 'Wood Pecker', 'Zebra Crossing'
+    'Wind Mill', 'Window Pane', 'Winter Coat', 'Wood Pecker', 'Zebra Crossing',
+    'Silver Spoon', 'Jungle Gym', 'Velvet Rope', 'Shadow Puppet', 'Candle Light',
+    'Silent Night', 'Golden Gate', 'Paper Plane', 'Plastic Bag', 'Cotton Swab',
+    'Desert Rose', 'Frozen Lake', 'Hidden Valley', 'Lucky Charm', 'Magic Carpet',
+    'Neon Sign', 'Open Book', 'Polar Bear', 'Quick Sand', 'Radio Wave',
+    'Secret Code', 'Tidal Wave', 'Urban Legend', 'Violet Flame', 'Wild Card',
+    'Yellow Brick', 'Zipper Pull', 'Amber Alert', 'Bamboo Shoot', 'Cherry Pie',
+    'Daisy Chain', 'Emerald Isle', 'Frost Bite', 'Giant Squid', 'Honey Bee',
+    'Iron Man', 'Jigsaw Puzzle', 'Kite String', 'Lava Lamp', 'Marble Cake',
+    'Nutmeg Spice', 'Olive Oil', 'Pepper Spray', 'Quilt Patch', 'Rainbow Arch',
+    'Satin Sheet', 'Tiger Lily', 'Umbrella Stand', 'Velcro Strap', 'Walnut Tree',
+    'Xmas Tree', 'Yoga Mat', 'Zen Garden', 'Anchor Point', 'Bubble Wrap',
+    'Cactus Flower', 'Dragon Boat', 'Echo Chamber', 'Fire Ant', 'Grape Vine',
+    'Hazel Nut', 'Ivory Tower', 'Jelly Roll', 'Kettle Corn', 'Lemon Zest',
+    'Moss Rock', 'Noodle Bowl', 'Onion Ring', 'Panda Bear', 'Quartz Stone',
+    'Rocket Ship', 'Soda Can', 'Taco Shell', 'Unicorn Horn', 'Vapor Trail',
+    'Waffle Iron', 'X-ray Film', 'Yarn Ball', 'Zebra Print', 'Acorn Squash',
+    'Bison Burger', 'Clover Leaf', 'Dune Buggy', 'Elm Tree', 'Fiddle Leaf',
+    'Gum Drop', 'Hawk Eye', 'Ink Well', 'Jungle Cat', 'Koala Bear',
+    'Lace Curtain', 'Mint Leaf', 'Navy Seal', 'Oyster Shell', 'Pine Needle',
+    'Quartz Watch', 'Rose Bush', 'Swan Lake', 'Tulip Bulb', 'Vine Leaf',
+    'Wolf Pack', 'Yacht Club', 'Zinc Plate'
 ]
 
 def main():
     credentials = service_account.Credentials.from_service_account_file(CREDENTIALS_PATH)
     db = firestore.Client(project=PROJECT_ID, credentials=credentials)
+
+    # Delete all existing phrases
+    print("Deleting all existing phrases...")
+    phrases_ref = db.collection('phrases')
+    for phrase in phrases_ref.stream():
+        phrase.reference.delete()
+    print("All existing phrases deleted.")
+
     batch = db.batch()
     for i, phrase in enumerate(PHRASES):
         words = phrase.split()
