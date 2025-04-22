@@ -104,6 +104,7 @@ def get_phrase():
 @app.route('/assign_points', methods=['POST'])
 @require_session
 def assign_points():
+    import datetime
     data = request.json
     points = data.get('points')  # int: 1, 3, or -1
     team = data.get('team')      # 'A' or 'B'
@@ -116,6 +117,25 @@ def assign_points():
     scores = game.get('scores', {'A': 0, 'B': 0})
     scores[team] = scores.get(team, 0) + points
     db_funcs.update_game_state(request.game_id, {'scores': scores})
+    # Check if timer expired
+    turn_end_time = game.get('turnEndTime')
+    expired = False
+    if turn_end_time:
+        # turnEndTime may be a datetime or string
+        if isinstance(turn_end_time, str):
+            try:
+                turn_end_time_dt = datetime.datetime.fromisoformat(turn_end_time.replace('Z', '+00:00'))
+            except Exception:
+                turn_end_time_dt = None
+        else:
+            turn_end_time_dt = turn_end_time
+        if turn_end_time_dt:
+            now = datetime.datetime.utcnow().replace(tzinfo=turn_end_time_dt.tzinfo)
+            if now > turn_end_time_dt:
+                expired = True
+    if expired:
+        # Do not assign a new phrase/word
+        return jsonify({'scores': scores, 'expired': True})
     # Get new phrase
     phrase_obj = db_funcs.get_random_phrase()
     if not phrase_obj:
