@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venns with Benefits</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app" class="container">
+        <header>
+            <h1>Venns with Benefits</h1>
+            <p class="subtitle">Find what two random things have in common!</p>
+        </header>
+
+        <!-- Lobby Screen -->
+        <div v-if="currentScreen === 'lobby'" class="screen lobby-screen">
+            <div class="join-create">
+                <div class="create-game">
+                    <h2>Create New Game</h2>
+                    <div class="input-group">
+                        <input type="text" v-model="playerName" placeholder="Your Name" class="input">
+                        <button @click="createGame" :disabled="!playerName" class="btn">Create Game</button>
+                    </div>
+                </div>
+                
+                <div class="join-game">
+                    <h2>Join Existing Game</h2>
+                    <div class="input-group">
+                        <input type="text" v-model="playerName" placeholder="Your Name" class="input">
+                        <select v-model="selectedGameId" class="input">
+                            <option value="" disabled selected>Select a game</option>
+                            <option v-for="game in availableGames" :value="game.game_id">{{ game.label }}</option>
+                        </select>
+                        <button @click="joinGame" :disabled="!playerName || !selectedGameId" class="btn">Join Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Waiting Screen -->
+        <div v-if="currentScreen === 'waiting'" class="screen waiting-screen">
+            <h2>Game Lobby</h2>
+            <p>Game Code: <span class="game-code">{{ currentGameId }}</span></p>
+            <div class="players-list">
+                <h3>Players:</h3>
+                <ul>
+                    <li v-for="player in players">{{ player.name }}</li>
+                </ul>
+            </div>
+            <p class="waiting-text">Waiting for players to join...</p>
+            <div class="action-buttons">
+                <button @click="startGame" :disabled="players.length < 3" class="btn">Start Game</button>
+                <p v-if="players.length < 3" class="note">Need at least 3 players to start</p>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div v-if="currentScreen === 'game'" class="screen game-screen">
+            <div class="game-header">
+                <div class="round-info">
+                    <h2>Round {{ gameState.round }}</h2>
+                    <div class="scores">
+                        <h3>Scores</h3>
+                        <ul>
+                            <li v-for="(score, playerId) in gameState.scores" :key="playerId">
+                                {{ getPlayerName(playerId) }}: {{ score }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submitting Phrases Screen -->
+            <div v-if="roundStatus === 'submitting'" class="round-screen submitting-screen">
+                <div class="your-words">
+                    <h3>Your Word Pair</h3>
+                    <div class="word-pair">
+                        <div class="word">{{ myWordPair[0] }}</div>
+                        <div class="word">{{ myWordPair[1] }}</div>
+                    </div>
+                </div>
+
+                <div class="other-players">
+                    <h3>Submit phrases for other players' word pairs</h3>
+                    <div v-for="(wordPair, playerId) in otherPlayerWordPairs" :key="playerId" class="submission-card">
+                        <div class="player-name">{{ getPlayerName(playerId) }}</div>
+                        <div class="word-pair">
+                            <div class="word">{{ wordPair[0] }}</div>
+                            <div class="word">{{ wordPair[1] }}</div>
+                        </div>
+                        <div class="submission-form">
+                            <input type="text" v-model="submissions[playerId]" placeholder="What do these have in common?" class="input">
+                            <button @click="submitPhrase(playerId)" :disabled="!submissions[playerId]" class="btn">Submit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="submission-status">
+                    <div v-for="(status, playerId) in submissionStatus" :key="playerId" class="status-item">
+                        {{ getPlayerName(playerId) }}: {{ status.submitted }}/{{ status.needed }} submissions
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voting Screen -->
+            <div v-if="roundStatus === 'voting'" class="round-screen voting-screen">
+                <h3>Vote for your favorite phrase!</h3>
+                <p>Select the phrase that best describes what your word pair has in common:</p>
+                <div class="your-words">
+                    <div class="word-pair">
+                        <div class="word">{{ myWordPair[0] }}</div>
+                        <div class="word">{{ myWordPair[1] }}</div>
+                    </div>
+                </div>
+
+                <div class="phrases-list">
+                    <div v-for="phrase in phrasesForMyPair" :key="phrase.id" class="phrase-card" @click="voteForPhrase(phrase.id)" :class="{ 'selected': votedPhraseId === phrase.id }">
+                        <div class="phrase">{{ phrase.phrase }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div v-if="roundStatus === 'finished'" class="round-screen results-screen">
+                <h3>Round Results</h3>
+                <div class="round-scores">
+                    <h4>Points Earned This Round:</h4>
+                    <ul>
+                        <li v-for="(points, playerId) in roundPoints" :key="playerId">
+                            {{ getPlayerName(playerId) }}: {{ points }} point{{ points !== 1 ? 's' : '' }}
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="total-scores">
+                    <h4>Total Scores:</h4>
+                    <ul>
+                        <li v-for="(score, playerId) in gameState.scores" :key="playerId">
+                            {{ getPlayerName(playerId) }}: {{ score }}
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="action-buttons">
+                    <button @click="startNextRound" class="btn">Next Round</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Modal -->
+        <div class="modal" v-if="showAlert">
+            <div class="modal-content">
+                <span @click="showAlert = false" class="close">&times;</span>
+                <p>{{ alertMessage }}</p>
+                <button @click="showAlert = false" class="btn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

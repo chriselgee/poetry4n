@@ -1,0 +1,312 @@
+/* General Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f7f9;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: #3498db;
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.screen {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+}
+
+.btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+.input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-right: 10px;
+    min-width: 200px;
+}
+
+/* Lobby Styles */
+.join-create {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.create-game, .join-game {
+    flex: 1;
+    min-width: 300px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+}
+
+.input-group {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Waiting Room Styles */
+.game-code {
+    font-family: monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #e74c3c;
+    background-color: #f9f9f9;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.players-list {
+    margin: 20px 0;
+}
+
+.players-list ul {
+    list-style-type: none;
+    margin-top: 10px;
+}
+
+.players-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.waiting-text {
+    margin: 20px 0;
+    font-style: italic;
+    color: #7f8c8d;
+}
+
+.note {
+    font-size: 0.9rem;
+    color: #e74c3c;
+    margin-top: 5px;
+}
+
+/* Game Screen Styles */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.scores {
+    margin-top: 20px;
+}
+
+.scores ul {
+    list-style-type: none;
+    margin-top: 10px;
+}
+
+.scores li {
+    padding: 3px 0;
+}
+
+/* Word Pair Styles */
+.word-pair {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.word {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+    flex: 1;
+    max-width: 150px;
+}
+
+.your-words {
+    margin-bottom: 30px;
+}
+
+/* Submission Styles */
+.submission-card {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.player-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.submission-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.submission-form input {
+    flex: 1;
+}
+
+.submission-status {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.status-item {
+    margin-bottom: 5px;
+}
+
+/* Voting Screen Styles */
+.phrases-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.phrase-card {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.phrase-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.phrase-card.selected {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.phrase {
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+/* Results Screen Styles */
+.round-scores, .total-scores {
+    margin-bottom: 25px;
+}
+
+.round-scores ul, .total-scores ul {
+    list-style-type: none;
+    margin-top: 10px;
+}
+
+.round-scores li, .total-scores li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .game-header {
+        flex-direction: column;
+    }
+    
+    .input, .btn {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .submission-form {
+        flex-direction: column;
+    }
+    
+    .word-pair {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .word {
+        max-width: 100%;
+    }
+}
