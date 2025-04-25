@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Games Chooser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Choose Your Word Game</h1>
+        <div class="button-container">
+            <a href="https://whiteboard.elg.ee/" class="game-button whiteboard">
+                <h2>Whiteboard</h2>
+                <p>Collaborative drawing and guessing game</p>
+            </a>
+            <a href="https://poetry.elg.ee" class="game-button poetry">
+                <h2>Poetry</h2>
+                <p>Create collaborative poems</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
