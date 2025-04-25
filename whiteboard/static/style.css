@@ -1,0 +1,86 @@
+/* Whiteboard/classroom theme */
+body {
+    font-family: 'Segoe UI', 'Arial', 'Liberation Sans', 'Helvetica Neue', sans-serif;
+    background: #e6e6e6;
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    color: #2d2d2d;
+    text-align: center;
+    font-size: 2.5em;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 0 #fff, 2px 2px 0 #bdbdbd;
+    margin-top: 32px;
+    margin-bottom: 16px;
+}
+#lobby, #game {
+    max-width: 440px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 28px 32px 32px 32px;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px #bdbdbd, 0 0 0 8px #f5f5f5 inset;
+    border: 4px solid #e0e0e0;
+    position: relative;
+}
+#lobby:before, #game:before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border: 2px dashed #bdbdbd;
+    border-radius: 12px;
+    pointer-events: none;
+    opacity: 0.3;
+}
+input[type=text] {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 2px solid #bdbdbd;
+    font-size: 1.1em;
+    font-family: inherit;
+    background: #f9f9f9;
+    box-shadow: 1px 1px 0 #e0e0e0;
+}
+button {
+    padding: 10px 20px;
+    border: none;
+    background: #4caf50;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 10px 0;
+    font-size: 1.1em;
+    font-family: inherit;
+    box-shadow: 2px 2px 0 #bdbdbd;
+    transition: background 0.2s, transform 0.1s;
+}
+button:hover {
+    background: #388e3c;
+    transform: scale(1.04) rotate(-1deg);
+}
+ul {
+    padding-left: 24px;
+    font-size: 1.1em;
+    font-family: inherit;
+    color: #2d2d2d;
+}
+#game_status {
+    margin-top: 18px;
+    color: #1976d2;
+    font-size: 1.1em;
+    font-family: inherit;
+}
+/* Marker color accents */
+#lobby h2, #game h2 {
+    color: #1976d2;
+    text-shadow: 1px 1px 0 #fff, 2px 2px 0 #bdbdbd;
+    margin-bottom: 18px;
+}
+#lobby_status {
+    color: #d84315;
+    font-family: inherit;
+    margin-top: 10px;
+}

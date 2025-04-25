@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Whiteboard Game Lobby</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Whiteboard Game</h1>
+    <div id="lobby">
+        <h2>Create or Join a Game</h2>
+        <input type="text" id="name" placeholder="Your name">
+        <button onclick="createGame()">Create Game</button>
+        <input type="text" id="game_code" placeholder="Game code">
+        <button onclick="joinGame()">Join Game</button>
+        <div id="lobby_status"></div>
+    </div>
+    <div id="game" style="display:none;"></div>
+    <script src="/static/lobby.js"></script>
+</body>
+</html>
