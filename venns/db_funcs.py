@@ -267,7 +267,7 @@ def update_scores_based_on_votes(game_id):
 def add_words_from_file(filename):
     """Add words from a JSON file to the database."""
     if not os.path.exists(filename):
-        return False
+        return 0
     
     with open(filename, 'r') as f:
         word_list = json.load(f)
@@ -294,4 +294,4 @@ def add_words_from_file(filename):
     if count > 0:
         batch.commit()
     
-    return True
+    return count

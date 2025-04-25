@@ -10,10 +10,10 @@ def main():
     args = parser.parse_args()
     
     print(f"Uploading words from {args.file}...")
-    success = db_funcs.add_words_from_file(args.file)
+    successCount = db_funcs.add_words_from_file(args.file)
     
-    if success:
-        print("Words uploaded successfully!")
+    if successCount > 0:
+        print(f"{successCount} words uploaded successfully!")
     else:
         print("Failed to upload words.")
 
